@@ -1,70 +1,58 @@
-package com.dss;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-
+import java.util.Scanner;
 
 public class Test {
-
-	public static void main(String[] args) {
+	
+	public static void main(String[] args) throws ClassNotFoundException, SQLException {
 		
-		Connection connection=null;
-		Statement statement=null;
+		Class.forName("oracle.jdbc.driver.OracleDriver");
 		
-		try {
-			
-			Class.forName("oracle.jdbc.driver.OracleDriver");
-//			System.out.println(10/0);
-			System.out.println("Driver Loading process completed.....");
-			
-			//Step 2:create connection
-			
-			 connection =DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "System", "manager");
-			
-			System.out.println("Connection created Succesfully"+connection);
-			System.out.println("Resources declaraton");
-			
-			
-
-			
-		String q1 = "insert into king values(3,'ssss','salem',3736)";
-		String q2 = "select*from king";
+		Connection connection = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "System", "manager");
 		
-			 statement = connection.createStatement();
+		Statement statement = connection.createStatement();
+		System.out.println("connection started..."+connection);
+		
+		PreparedStatement preparedstatement = connection.prepareStatement("insert into king values(?,?,?,?)");
+		Scanner scan  = new Scanner(System.in);
+		while(true) {
+			System.out.println("Enter sno");
+			int sno = scan.nextInt();
 			
-			statement.executeUpdate(q1);
-		ResultSet rs=	statement.executeQuery(q2);
-			while(rs.next()) {
-				System.out.println(" "+rs.getString("name")+" "+rs.getString("sno")+" "+rs.getString("pincode"));
+			System.out.println("Enter name");
+			String name = scan.next();
+			
+			System.out.println("Enter state");
+			String state = scan.next();
+			
+			System.out.println("Enter pincode");
+			int pincode = scan.nextInt();
+			
+			preparedstatement.setInt(1, sno);
+			
+			preparedstatement.setString(2, name);
+			
+			preparedstatement.setString(3, state);
+			
+			preparedstatement.setInt(4, pincode);
+			
+			preparedstatement.execute();
+			
+			System.out.println("Values inserted successfully........do you want 1 more record yes/no");
+			
+			String option = scan.next();
+			if(option.equals("no")) {
+				break;
 			}
-			
-			statement.execute(q2);
-			
-			System.out.println("data inseerted"+statement.execute(q2));
-			
-		
-			
-		}catch(ClassNotFoundException  | SQLException e) {
-			e.printStackTrace();
-			System.out.println("handled exception");
-			
-		}finally {
-			try {
-				if(connection!=null) {
-		connection.close();
-				}
-				if(statement!=null) {
-		statement.close();
-				}
-		System.out.println("finally resources closed");
-			
-		}catch(SQLException e) {
-			e.printStackTrace();
-		}
 	}
+		
+		connection.close();
+		statement.close();
+		scan.close();
+		System.out.println("Connection close succesfully......");
 
 }
 }
